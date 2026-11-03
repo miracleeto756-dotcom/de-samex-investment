@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>De Samex Investment | Dr. Eto Egirani</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #f5f7fa;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        #loading {
+            position: fixed; inset: 0;
+            background: linear-gradient(135deg, #0d47a1, #1565c0);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 9999; transition: opacity 0.5s ease;
+        }
+        #loading.hidden { opacity: 0; pointer-events: none; }
+        .loader {
+            width: 50px; height: 50px;
+            border: 4px solid rgba(255,255,255,0.25);
+            border-top-color: white; border-radius: 50%;
+            animation: spin 0.9s linear infinite; margin-bottom: 18px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #loading h2 { color: white; font-size: 1.5rem; font-weight: 600; }
+
+        header {
+            background: white; padding: 14px 20px;
+            position: sticky; top: 0; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-area img { height: 42px; border-radius: 6px; }
+        .logo-text { font-size: 1.2rem; font-weight: 700; color: #0d47a1; }
+        .menu-btn {
+            font-size: 1.7rem; background: none; border: none;
+            color: #0d47a1; cursor: pointer; padding: 4px 8px;
+        }
+
+        .side-menu {
+            position: fixed; top: 0; right: -300px; width: 290px; height: 100%;
+            background: white; box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+            transition: right 0.3s ease; z-index: 200; padding-top: 80px;
+        }
+        .side-menu.active { right: 0; }
+        .side-menu a {
+            display: block; padding: 15px 24px; color: #1a365d;
+            text-decoration: none; font-weight: 600; font-size: 1.05rem;
+            border-bottom: 1px solid #edf2f7;
+        }
+        .side-menu a:hover, .side-menu a.active {
+            background: #ebf4ff; color: #0d47a1;
+        }
+
+        .overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+            opacity: 0; visibility: hidden; transition: 0.3s; z-index: 150;
+        }
+        .overlay.active { opacity: 1; visibility: visible; }
+
+        .section {
+            display: none; padding: 28px 18px 80px;
+            max-width: 680px; margin: 0 auto;
+        }
+        .section.active { display: block; }
+
+        h1 {
+            color: #0d47a1; font-size: 1.7rem; text-align: center;
+            margin-bottom: 12px; font-weight: 700;
+        }
+        h2 { color: #0d47a1; font-size: 1.25rem; margin: 22px 0 10px; font-weight: 650; }
+        p { margin-bottom: 14px; color: #4a5568; }
+
+        .hero-box {
+            background: linear-gradient(135deg, #0d47a1, #1565c0);
+            color: white; padding: 32px 24px; border-radius: 16px;
+            text-align: center; margin: 24px 0;
+            box-shadow: 0 10px 25px rgba(13, 71, 161, 0.25);
+        }
+        .hero-box p { color: rgba(255,255,255,0.9); margin-bottom: 20px; font-size: 1.05rem; }
+
+        .btn {
+            display: inline-block; background: white; color: #0d47a1;
+            padding: 12px 28px; border-radius: 50px; text-decoration: none;
+            font-weight: 700; border: none; cursor: pointer; font-size: 0.95rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .btn-blue { background: #0d47a1; color: white; }
+        .btn-red {
+            background: #e53e3e; color: white; padding: 11px 22px;
+            border-radius: 10px; border: none; font-weight: 600; cursor: pointer;
+        }
+
+        .card {
+            background: white; border-radius: 14px; padding: 22px;
+            margin: 18px 0; box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+        }
+
+        .core-services ul { list-style: none; margin-top: 14px; }
+        .core-services li {
+            padding: 11px 0 11px 28px; position: relative;
+            border-bottom: 1px solid #edf2f7;
+        }
+        .core-services li:last-child { border-bottom: none; }
+        .core-services li::before {
+            content: "✓"; position: absolute; left: 0;
+            color: #0d47a1; font-weight: 700;
+        }
+
+        .location-box {
+            background: #ebf8ff; border-left: 5px solid #0d47a1;
+            border-radius: 12px; padding: 20px; text-align: center; margin: 22px 0;
+        }
+
+        .form-group { margin-bottom: 18px; }
+        label {
+            display: block; margin-bottom: 6px; font-weight: 600;
+            color: #0d47a1; font-size: 0.95rem;
+        }
+        input, select, textarea {
+            width: 100%; padding: 13px 14px; border: 1.5px solid #e2e8f0;
+            border-radius: 10px; font-size: 1rem; background: #f8fafc;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none; border-color: #0d47a1; background: white;
+        }
+        .form-btn {
+            width: 100%; padding: 15px; background: #0d47a1; color: white;
+            border: none; border-radius: 10px; font-size: 1.05rem;
+            font-weight: 700; cursor: pointer; margin-top: 6px;
+        }
+
+        .service-item {
+            background: white; border-radius: 12px; padding: 18px 20px;
+            margin-bottom: 14px; box-shadow: 0 3px 12px rgba(0,0,0,0.04);
+            border-left: 4px solid #0d47a1;
+        }
+        .service-item strong {
+            color: #0d47a1; display: block; margin-bottom: 4px; font-size: 1.05rem;
+        }
+
+        .booking-card {
+            background: white; border-radius: 12px; padding: 18px 20px;
+            margin-bottom: 14px; box-shadow: 0 3px 12px rgba(0,0,0,0.04);
+            border-left: 5px solid #25D366;
+        }
+        .booking-card p { margin: 5px 0; font-size: 0.97rem; }
+        .no-bookings {
+            text-align: center; padding: 50px 20px; color: #718096;
+            background: white; border-radius: 14px;
+        }
+
+        /* Success Box */
+        .success-box {
+            display: none; position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); background: #0d47a1;
+            color: white; padding: 28px 40px; border-radius: 16px;
+            text-align: center; font-size: 1.2rem; font-weight: 600;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25); z-index: 99999;
+            min-width: 280px;
+        }
+        .success-box.show {
+            display: block; animation: popIn 0.3s ease;
+        }
+        @keyframes popIn {
+            from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            to   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        footer {
+            text-align: center; padding: 18px; background: #0d47a1;
+            color: #bee3f8; font-size: 0.9rem;
+        }
+
+        @media (max-width: 480px) {
+            .logo-text { font-size: 1.1rem; }
+            h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading">
+        <div class="loader"></div>
+        <h2>De Samex Investment</h2>
+    </div>
+
+    <header>
+        <div class="logo-area">
+            <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
+            <div class="logo-text">De Samex Investment</div>
+        </div>
+        <button class="menu-btn" onclick="toggleMenu()">☰</button>
+    </header>
+
+    <div class="overlay" id="overlay" onclick="closeMenu()"></div>
+    <nav class="side-menu" id="sideMenu">
+        <a href="#" onclick="showSection('home')" class="active">Home</a>
+        <a href="#" onclick="showSection('about')">About the Doctor</a>
+        <a href="#" onclick="showSection('services')">Services</a>
+        <a href="#" onclick="showSection('appointment')">Book an Appointment</a>
+        <a href="#" onclick="showSection('login')" id="loginMenu">Admin Login</a>
+        <a href="#" onclick="showSection('bookings')" id="bookingsMenu" style="display:none;">Booked Appointments</a>
+        <a href="#" onclick="logout()" id="logoutMenu" style="display:none;">Logout</a>
+        <a href="#" onclick="showSection('contact')">Contact Us</a>
+    </nav>
+
+    <!-- HOME -->
+    <section id="home" class="section active">
+        <h1>Welcome to De Samex Investment</h1>
+        <p style="text-align:center;">
+            Your health is our priority. We are committed to providing professional medical care and supporting your well-being.
+        </p>
+        <div class="hero-box">
+            <p>Everything you need for the first hour</p>
+            <button class="btn" onclick="showSection('appointment')">Where to Start</button>
+        </div>
+        <div style="text-align:center; margin: 18px 0 10px;">
+            <button class="btn btn-blue" onclick="showSection('about')">Find a Doctor</button>
+        </div>
+        <div class="card core-services">
+            <h2>Core Services</h2>
+            <ul>
+                <li>Medical Consultations</li>
+                <li>General Health Assessments</li>
+                <li>Follow-up Consultations</li>
+                <li>Health Advice</li>
+                <li>Other Medical Services</li>
+            </ul>
+        </div>
+        <div class="location-box">
+            <h2>📍 Location</h2>
+            <p>Please contact us for our clinic address and directions.</p>
+            <p><strong>WhatsApp:</strong> +234 806 888 1919</p>
+        </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="section">
+        <h1>About the Doctor</h1>
+        <div class="card">
+            <h2>Meet Dr. Eto Egirani</h2>
+            <p>Dr. Eto Egirani is dedicated to providing medical care, examining patients, treating illnesses, and supporting their health and recovery.</p>
+            <p>His goal is to ensure that every patient receives appropriate medical attention and respectful care.</p>
+        </div>
+        <div style="text-align:center; margin-top: 20px;">
+            <button class="btn btn-blue" onclick="showSection('appointment')">Book an Appointment</button>
+        </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section id="services" class="section">
+        <h1>Our Medical Services</h1>
+        <p style="text-align:center;">We provide medical services to support your health and well-being.</p>
+        <div class="service-item"><strong>Medical Consultations</strong>Discuss your health concerns with a doctor.</div>
+        <div class="service-item"><strong>General Health Assessments</strong>Get an assessment of your overall health.</div>
+        <div class="service-item"><strong>Follow-up Consultations</strong>Review your progress after treatment.</div>
+        <div class="service-item"><strong>Health Advice</strong>Receive guidance on maintaining good health.</div>
+        <div class="service-item"><strong>Other Medical Services</strong>Contact us to learn more about our available services.</div>
+        <div style="text-align:center; margin-top: 22px;">
+            <button class="btn btn-blue" onclick="showSection('appointment')">Book an Appointment</button>
+        </div>
+    </section>
+
+    <!-- APPOINTMENT -->
+    <section id="appointment" class="section">
+        <h1>Book an Appointment</h1>
+        <p style="text-align:center;">Your health matters to us. Request an appointment with Dr. Eto Egirani.</p>
+        <div class="card">
+            <h2>Appointment Form</h2>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="a-name" placeholder="Enter your full name">
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="a-phone" placeholder="Enter your phone number">
+            </div>
+            <div class="form-group">
+                <label>Preferred Date</label>
+                <input type="date" id="a-date">
+            </div>
+            <div class="form-group">
+                <label>Preferred Time</label>
+                <input type="time" id="a-time">
+            </div>
+            <div class="form-group">
+                <label>Type of Consultation</label>
+                <select id="a-type">
+                    <option value="">Select type</option>
+                    <option>Medical Consultation</option>
+                    <option>General Health Assessment</option>
+                    <option>Follow-up Consultation</option>
+                    <option>Health Advice</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <button class="form-btn" onclick="sendAppointment()">Request an Appointment</button>
+            <p style="text-align:center; margin-top: 14px; font-size: 0.9rem; color: #718096;">
+                Your appointment will be confirmed by the clinic.
+            </p>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="section">
+        <h1>Contact Us</h1>
+        <div class="card" style="text-align:center;">
+            <h2>Get in Touch</h2>
+            <p>Have a question or need to arrange an appointment?</p>
+            <p><strong>Doctor:</strong> Dr. Eto Egirani</p>
+            <p><strong>WhatsApp:</strong> +234 806 888 1919</p>
+            <p style="margin-top: 20px; font-size: 0.95rem;">We look forward to assisting you.</p>
+        </div>
+    </section>
+
+    <footer>© 2025 De Samex Investment | Dr. Eto Egirani</footer>
+
+    <!-- Success Message Box -->
+    <div class="success-box" id="successBox">Appointment submitted successfully</div>
+
+    <script>
+        // Check if already logged in
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loading').classList.add('hidden');
+            }, 1400);
+            checkLogin();
+            loadBookings();
+        });
+
+        function toggleMenu() {
+            document.getElementById('sideMenu').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function closeMenu() {
+            document.getElementById('sideMenu').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.side-menu a').forEach(a => a.classList.remove('active'));
+            closeMenu();
+            window.scrollTo(0, 0);
+            if (id === 'bookings') loadBookings();
+        }
+
+        function checkLogin() {
+            const isLoggedIn = localStorage.getItem('samexAdmin') === 'true';
+            if (isLoggedIn) {
+                document.getElementById('loginMenu').style.display = 'none';
+                document.getElementById('bookingsMenu').style.display = 'block';
+                document.getElementById('logoutMenu').style.display = 'block';
+            } else {
+                document.getElementById('loginMenu').style.display = 'block';
+                document.getElementById('bookingsMenu').style.display = 'none';
+                document.getElementById('logoutMenu').style.display = 'none';
+            }
+        }
+
+        function doLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            if (email === 'egiranieto@gmail.com' && password === '1972') {
+                localStorage.setItem('samexAdmin', 'true');
+                checkLogin();
+                showSection('bookings');
+
+                const box = document.getElementById('successBox');
+                box.innerText = "Login successful";
+                box.classList.add('show');
+                setTimeout(() => box.classList.remove('show'), 2000);
+            } else {
+                alert("Wrong email or password");
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('samexAdmin');
+            checkLogin();
+            showSection('home');
+        }
+
+        function sendAppointment() {
+            const name = document.getElementById('a-name').value.trim();
+            const phone = document.getElementById('a-phone').value.trim();
+            const date = document.getElementById('a-date').value;
+            const time = document.getElementById('a-time').value;
+            const type = document.getElementById('a-type').value;
+
+            if (!name || !phone || !date || !time || !type) {
+                alert("Please fill all the fields");
+                return;
+            }
+
+            const booking = {
+                name, phone, date, time, type,
+                timeBooked: new Date().toLocaleString()
+            };
+
+            let bookings = JSON.parse(localStorage.getItem('samexBookings') || '[]');
+            bookings.push(booking);
+            localStorage.setItem('samexBookings', JSON.stringify(bookings));
+
+            document.getElementById('a-name').value = '';
+            document.getElementById('a-phone').value = '';
+            document.getElementById('a-date').value = '';
+            document.getElementById('a-time').value = '';
+            document.getElementById('a-type').value = '';
+
+            const box = document.getElementById('successBox');
+            box.innerText = "Appointment submitted successfully";
+            box.classList.add('show');
+            setTimeout(() => box.classList.remove('show'), 2500);
+        }
+
+        function loadBookings() {
+            const list = document.getElementById('bookings-list');
+            const bookings = JSON.parse(localStorage.getItem('samexBookings') || '[]');
+
+            if (bookings.length === 0) {
+                list.innerHTML = '<div class="no-bookings">No appointments booked yet.</div>';
+                return;
+            }
+
+            let html = '';
+            for (let i = bookings.length - 1; i >= 0; i--) {
+                const b = bookings[i];
+                html += `
+                    <div class="booking-card">
+                        <p><strong>Name:</strong> ${b.name}</p>
+                        <p><strong>Phone:</strong> ${b.phone}</p>
+                        <p><strong>Date:</strong> ${b.date}</p>
+                        <p><strong>Time:</strong> ${b.time}</p>
+                        <p><strong>Type:</strong> ${b.type}</p>
+                        <p style="font-size:0.85rem; color:#718096;"><strong>Booked on:</strong> ${b.timeBooked}</p>
+                    </div>`;
+            }
+            list.innerHTML = html;
+        }
+
+        function clearBookings() {
+            localStorage.removeItem('samexBookings');
+            loadBookings();
+
+            const box = document.getElementById('successBox');
+            box.innerText = "All appointments cleared successfully";
+            box.classList.add('show');
+            setTimeout(() => {
+                box.classList.remove('show');
+                box.innerText = "Appointment submitted successfully";
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
